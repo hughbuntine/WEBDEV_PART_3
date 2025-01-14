@@ -6,6 +6,7 @@ const app = express();
 app.use(cors())
 app.use(morgan('tiny'));
 app.use(express.json()); 
+app.use(express.static('dist'));
 
 let phonebookEntries = [
         { 
@@ -94,5 +95,4 @@ const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
-
-console.log('can read this');
+app.use(express.static('dist'))
