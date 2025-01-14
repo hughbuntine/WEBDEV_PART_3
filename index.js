@@ -1,6 +1,11 @@
 const express = require('express');
-
+const morgan = require('morgan');
+const cors = require('cors')
 const app = express();
+
+app.use(cors())
+app.use(morgan('tiny'));
+app.use(express.json()); 
 
 let phonebookEntries = [
         { 
@@ -54,7 +59,6 @@ app.delete('/api/persons/:id', (request, response) => {
         response.status(204).end();
 });
 
-app.use(express.json()); 
 
 // Route handler to add a person to persons
 app.post('/api/persons', (request, response) => {
@@ -86,6 +90,7 @@ app.post('/api/persons', (request, response) => {
 
 
 // Start the server
-app.listen(3001, () => {
-        console.log('Server is running on http://localhost:3001');
-});
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})
