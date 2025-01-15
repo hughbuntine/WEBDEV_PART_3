@@ -10,7 +10,6 @@ if (process.argv.length === 4) {
     process.exit(1)
     }
 
-
 const password = process.argv[2]
 
 const url =
