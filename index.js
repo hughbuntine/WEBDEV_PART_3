@@ -24,17 +24,18 @@ app.get('/api/persons', async (req, res, next) => {
 });
 
 // Route handler for /info
-app.get('/info', async (request, response) => {
-    const count = await Person.countDocuments({});
-    const date = new Date();
-    response.send(`<p>Phonebook has info for ${count} people</p><p>${date}</p>`);
-});
-
-// Route handler for /api/persons/:id
 app.get('/api/persons/:id', (request, response, next) => {
     Person.findById(request.params.id)
-        .then(person => person ? response.json(person) : response.status(404).end())
-        .catch(err => next(err));
+        .then(person => {
+            if (person) {
+                response.json(person);
+            } else {
+                response.status(404).end();
+            }
+        })
+        .catch(error => {
+            next(error);
+        });
 });
 
 // Route handler to delete a person
@@ -69,6 +70,19 @@ app.post('/api/persons', (request, response, next) => {
     }).catch(error => next(error));
 });
 
+
+// Error handling middleware
+app.use((error, req, res, next) => {
+    console.error(error.message);
+
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+      } else if (error.name === 'ValidationError') {
+        return response.status(400).json({ error: error.message })
+      }
+
+    next(error);
+});
 
 // **Connect to MongoDB and start the server**
 connectDB().then(() => {
