@@ -1,7 +1,56 @@
+
+
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors')
 const app = express();
+const mongoose = require('mongoose')
+
+
+require('dotenv').config();
+const url = process.env.MONGODB_URI;
+
+console.log('connecting to', url);
+
+mongoose.set('strictQuery',false)
+
+mongoose.connect(url)
+
+const personSchema = new mongoose.Schema({
+  name: String,
+  number: String,
+})
+
+const Person = mongoose.model('Person', personSchema)
+
+const entryName = process.argv[3];
+const entryNumber = process.argv[4];
+
+
+const person = new Person({
+  name: entryName,
+  number: entryNumber,
+})
+ 
+// show the phone book
+if (process.argv.length === 3) {
+    console.log('phonebook:');
+    Person.find({}).then(result => {
+        result.forEach(person => {
+          console.log(person.name, person.number);
+        })
+        mongoose.connection.close()
+      })
+}
+// add a person to the phone book
+else{
+    person.save().then(result => {
+    console.log('person saved!')
+    mongoose.connection.close()
+})
+}
+
+// _______________________________________________________
 
 app.use(cors())
 app.use(morgan('tiny'));
@@ -33,7 +82,10 @@ let phonebookEntries = [
 
 // Route handler for /api/persons
 app.get('/api/persons', (request, response) => {
-        response.json(phonebookEntries);
+        Person.find({}).then(result => {
+            response.json(result)
+        }
+        )
 });
 
 // Route handler for /info
@@ -96,3 +148,8 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
 app.use(express.static('dist'))
+
+// _______________________________________________________
+
+
+
